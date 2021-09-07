@@ -36,7 +36,8 @@ class Calendar_model extends CI_Model {
         $this->db->where("id", $id)->delete("events");
     }
 
-    public function getTask($id,$role_id, $limit = null, $offset = null) {
+    public function getTask($limit = null, $offset = null, $id,$role_id) {
+
 
         $query = $this->db->where(array('event_type' => 'task', 'event_for' => $id, 'role_id' => $role_id))->order_by("is_active,start_date", "asc")->limit($limit, $offset)->get("events");
 
@@ -50,9 +51,10 @@ class Calendar_model extends CI_Model {
         return $query->num_rows();
     }
 
-       function countrows($id,$role_id) {
+       function countrows() {
 
-       $query = $this->db->where(array('event_type' => 'task', 'event_for' => $id, 'role_id' => $role_id))->order_by("is_active,start_date", "asc")->get("events");
+        $query = $this->db->where("event_type", "task")->get("events");
+
         return $query->num_rows();
     }
 

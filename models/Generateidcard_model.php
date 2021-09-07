@@ -1,7 +1,8 @@
 <?php
-if (!defined('BASEPATH'))
-    exit('No direct script access allowed');
 
+/**
+ * 
+ */
 class Generateidcard_model extends CI_model {
 
     function __construct() {
@@ -12,7 +13,7 @@ class Generateidcard_model extends CI_model {
     public function getstudentidcard() {
         $this->db->select('*');
         $this->db->from('id_card');
-        $query = $this->db->get();
+        $query = $this->db->get();        
         return $query->result();
     }
 

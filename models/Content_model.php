@@ -35,15 +35,12 @@ class Content_model extends MY_Model {
     }
 
     public function getContentByRole($id = null, $role = null) {
-        $inner_sql = "";
-     
-        if ($role == "student") {
+         $inner_sql="";
+        if ($role != "Super Admin") {
             $inner_sql = " WHERE (role='student' and created_by='" . $id . "' ) or (created_by=0 and role='" . $role . "')";
-        }elseif($role == "Teacher"){
-            $inner_sql = " WHERE (role='Teacher' and created_by='" . $id . "' ) or (created_by=0 and role='" . $role . "')";
         }
         $query = "SELECT contents.*,(select GROUP_CONCAT(role) FROM content_for WHERE content_id=contents.id) as role,class_sections.id as `class_section_id`,classes.class,sections.section  FROM `content_for`  INNER JOIN contents on contents.id=content_for.content_id left JOIN class_sections on class_sections.id=contents.cls_sec_id left join classes on classes.id=class_sections.class_id LEFT JOIN sections on sections.id=class_sections.section_id" . $inner_sql . " GROUP by contents.id";
-
+      
         $query = $this->db->query($query);
         return $query->result_array();
     }
@@ -73,7 +70,9 @@ class Content_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function getListByforUser($class_id, $section_id) {
+
+
+  public function getListByforUser($class_id, $section_id) {
 
         if (empty($class_id)) {
 
@@ -89,29 +88,36 @@ class Content_model extends MY_Model {
         return $query->result_array();
     }
 
+
+
+
+
+
+
+
     /**
      * This function will delete the record based on the id
      * @param $id
      */
     public function remove($id) {
-        $this->db->trans_start(); # Starting Transaction
+		$this->db->trans_start(); # Starting Transaction
         $this->db->trans_strict(false); # See Note 01. If you wish can remove as well
         //=======================Code Start===========================
         $this->db->where('id', $id);
         $this->db->delete('contents');
-        $message = DELETE_RECORD_CONSTANT . " On contents id " . $id;
-        $action = "Delete";
-        $record_id = $id;
+		$message      = DELETE_RECORD_CONSTANT." On contents id ".$id;
+        $action       = "Delete";
+        $record_id    = $id;
         $this->log($message, $record_id, $action);
-        //======================Code End==============================
+		//======================Code End==============================
         $this->db->trans_complete(); # Completing transaction
-        /* Optional */
+        /*Optional*/
         if ($this->db->trans_status() === false) {
             # Something went wrong.
             $this->db->trans_rollback();
             return false;
         } else {
-            //return $return_value;
+        //return $return_value;
         }
     }
 
@@ -129,16 +135,17 @@ class Content_model extends MY_Model {
      * @param $data
      */
     public function add($data, $content_role = array()) {
-        $this->db->trans_start(); # Starting Transaction
+		$this->db->trans_start(); # Starting Transaction
         $this->db->trans_strict(false); # See Note 01. If you wish can remove as well
         //=======================Code Start===========================
         if (isset($data['id'])) {
             $this->db->where('id', $data['id']);
             $this->db->update('contents', $data);
-            $message = UPDATE_RECORD_CONSTANT . " On  contents id " . $data['id'];
-            $action = "Update";
-            $record_id = $insert_id = $data['id'];
-            $this->log($message, $record_id, $action);
+			$message      = UPDATE_RECORD_CONSTANT." On  contents id ".$data['id'];
+			$action       = "Update";
+			$record_id    = $insert_id = $data['id'];
+			$this->log($message, $record_id, $action);
+			
         } else {
             $this->db->insert('contents', $data);
             $insert_id = $this->db->insert_id();
@@ -149,24 +156,27 @@ class Content_model extends MY_Model {
                 }
                 $this->db->insert_batch('content_for', $content_role);
             }
-            $message = INSERT_RECORD_CONSTANT . " On contents id " . $insert_id;
-            $action = "Insert";
-            $record_id = $insert_id;
-            $this->log($message, $record_id, $action);
+            $message      = INSERT_RECORD_CONSTANT." On contents id ".$insert_id;
+			$action       = "Insert";
+			$record_id    = $insert_id;
+			$this->log($message, $record_id, $action);
+			
         }
-        //======================Code End==============================
+		//echo $this->db->last_query();die;
+			//======================Code End==============================
 
-        $this->db->trans_complete(); # Completing transaction
-        /* Optional */
+			$this->db->trans_complete(); # Completing transaction
+			/*Optional*/
 
-        if ($this->db->trans_status() === false) {
-            # Something went wrong.
-            $this->db->trans_rollback();
-            return false;
-        } else {
-            return $insert_id;
-        }
-        // return $insert_id;
+			if ($this->db->trans_status() === false) {
+				# Something went wrong.
+				$this->db->trans_rollback();
+				return false;
+
+			} else {
+				return $insert_id;
+			}
+			// return $insert_id;
     }
 
 }
